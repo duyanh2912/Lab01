@@ -23,6 +23,9 @@ PODS:
   - RxSwift (3.2.0)
   - RxSwiftExt (2.1.0):
     - RxSwift (~> 3.0)
+  - SDWebImage (4.0.0):
+    - SDWebImage/Core (= 4.0.0)
+  - SDWebImage/Core (4.0.0)
   - SlideMenuControllerSwift (3.0.1)
   - SwiftyJSON (3.1.4)
 
@@ -38,6 +41,7 @@ DEPENDENCIES:
   - RxGesture
   - RxSwift
   - RxSwiftExt
+  - SDWebImage
   - SlideMenuControllerSwift
   - SwiftyJSON
 
@@ -54,9 +58,10 @@ SPEC CHECKSUMS:
   RxGesture: 26b8dbfce16f0cf6594e41a4b39d6180cad4cf3c
   RxSwift: 46574f70d416b7923c237195939cc488a7fbf3a0
   RxSwiftExt: 492a6575cf6afabb8feeed3204bd0f9e2c695e67
+  SDWebImage: 76a6348bdc74eb5a55dd08a091ef298e56b55e41
   SlideMenuControllerSwift: 9a163b16d54afab734add42858cba7ef7c307755
   SwiftyJSON: c2842d878f95482ffceec5709abc3d05680c0220
 
-PODFILE CHECKSUM: b155d02f2a1ae9820d4fd346c79b558e5e8c4b53
+PODFILE CHECKSUM: cf34944da88b2e08376a465a160133596a7ac5d5
 
 COCOAPODS: 1.2.0

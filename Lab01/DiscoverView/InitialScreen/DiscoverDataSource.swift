@@ -12,13 +12,6 @@ import RxSwift
 
 class DiscoverDataSource: ReactiveCollectionViewDataSource {
     weak var collectionView: UICollectionView!
-    lazy var categories: Variable<[Category?]> = {
-        var array: [Category?] = []
-        for i in 1...LinkGenerator.links.count {
-            array.append(nil)
-        }
-        return Variable(array)
-    }()
     
     var disposeBag = DisposeBag()
     
@@ -27,7 +20,7 @@ class DiscoverDataSource: ReactiveCollectionViewDataSource {
     }
     
     func bindDataSource() {
-        categories.asObservable()
+        CategoryController.all.asObservable()
             .bindTo(collectionView
                 .rx
                 .items(cellIdentifier: CategoryCell.identifier, cellType: CategoryCell.self)
@@ -41,8 +34,9 @@ class DiscoverDataSource: ReactiveCollectionViewDataSource {
     func getData() {
         for (index, link) in LinkGenerator.links.enumerated() {
             LinkGenerator.json(from: link)
-                .subscribe(onNext: { [unowned self] json in
-                    self.categories.value[index] = Category(json: json)
+                .subscribe(onNext: { json in
+                    CategoryController.all.value[index] = Category(json: json)
+                    CategoryController.all.value[index]?.json = json
                 })
                 .addDisposableTo(disposeBag)
         }

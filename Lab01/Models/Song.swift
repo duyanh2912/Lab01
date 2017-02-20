@@ -8,26 +8,45 @@
 
 import Foundation
 import SwiftyJSON
+import RxSwift
+import RxCocoa
 
 class Song {
-    var name = ""
-    var artist = ""
+    var title: String
+    var artist: String
+    var imageLink: String
     
-    init(name: String, artist: String) {
-        self.name = name
+    init(title: String, artist: String, imageLink: String) {
+        self.title = title
         self.artist = artist
+        self.imageLink = imageLink
     }
     
-    class func parse(json: JSON) -> [Song] {
-        var songs = [Song]()
-        let feed = json["feed"]
-        let entries = feed["entry"].array!
-        for entry in entries {
-            let name = entry["title"]["label"].string!
-            let artist = entry["im:artist"]["label"].string!
-            let song = Song(name: name, artist: artist)
-            songs.append(song)
+    class func parse(json: JSON) -> Observable<Song> {
+        return Observable<Song>.create { observer in
+            let feed = json["feed"]
+            if let entries = feed["entry"].array {
+            for entry in entries {
+                let title = entry["title"]["label"].stringValue
+                let artist = entry["im:artist"]["label"].stringValue
+                let imageLink = entry["im:image"][2]["label"].stringValue
+                
+                let song = Song(title: title, artist: artist, imageLink: imageLink)
+                observer.onNext(song)
+                print("shit")
+            }
+                observer.onCompleted()
+            } else {
+                observer.onError(SongParseError.noArray)
+            }
+            return Disposables.create()
         }
-        return songs
+    }
+}
+
+enum SongParseError: Error, CustomStringConvertible {
+    case noArray
+    var description: String {
+        return "Fail at getting entry array"
     }
 }

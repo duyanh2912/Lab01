@@ -18,7 +18,8 @@ public class CustomUIImageView: UIImageView {
     @IBInspectable public var blendAlpha: CGFloat = 0 {didSet{setNeedsLayout()}}
     @IBInspectable public var blendColor: UIColor = .clear {didSet{setNeedsLayout()}}
     
-    func blendedImage(_ image: UIImage) -> UIImage {
+    func blendedImage(_ image: UIImage?) -> UIImage? {
+        guard let image = image else { return nil }
         UIGraphicsBeginImageContextWithOptions(image.size, false, 0)
         
         let rect = CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
@@ -34,16 +35,17 @@ public class CustomUIImageView: UIImageView {
         
         let result = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-        return result!
+        return result
     }
     
     //  Inset Properties
     @IBInspectable var insetAmount: CGFloat = 0 {didSet{setNeedsLayout()}}
     
-    func inset(image: UIImage) -> UIImage {
+    func inset(image: UIImage?) -> UIImage? {
         guard insetAmount != 0 else {
             return image
         }
+        guard let image = image else { return nil }
         
         let size = self.bounds.size.add(dx: self.bounds.width * insetAmount / 100, dy: self.bounds.height * insetAmount / 100)
         
@@ -68,7 +70,7 @@ public class CustomUIImageView: UIImageView {
         let result = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
-        return result!
+        return result
     }
     
     // Circle
@@ -93,11 +95,13 @@ public class CustomUIImageView: UIImageView {
             self.configCornerCircle()
         }
         
-        var image: UIImage
-        image = blendedImage(originalImage!)
+        var image: UIImage?
+        image = blendedImage(originalImage)
         image = inset(image: image)
         
-        self.image = image
+        if image != nil {
+            self.image = image
+        }
     }
     
     public func changeImage(_ image: UIImage) {

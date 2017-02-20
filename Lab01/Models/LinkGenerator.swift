@@ -14,7 +14,7 @@ import Alamofire
 import SwiftyJSON
 
 class LinkGenerator {
-    static var prefix = "https://itunes.apple.com/us/rss/topsongs/limit=10/genre="
+    static var prefix = "https://itunes.apple.com/us/rss/topsongs/limit=50/genre="
     static var suffix = "/explicit=true/json"
     static var disposeBag = DisposeBag()
     
@@ -24,29 +24,6 @@ class LinkGenerator {
             array.append(prefix + $0.description + suffix)
         }
         return array
-    }
-    
-    static var streams: Variable<[JSON]> {
-        let variable = Variable<[JSON]>([])
-        Observable<String>.create { o in
-            links.forEach { link in
-                o.onNext(link)
-            }
-            return Disposables.create()
-            }
-            .flatMap { link in
-                return json(from: link)
-            }
-            .scan([JSON]([])) { acc, value in
-                var array = acc
-                array.append(value)
-                return array
-            }
-            .subscribe(onNext: {
-                variable.value = $0
-            })
-            .addDisposableTo(disposeBag)
-        return variable
     }
     
     static func json(from link: URLConvertible) -> Observable<JSON> {

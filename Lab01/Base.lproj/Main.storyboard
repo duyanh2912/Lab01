@@ -65,8 +65,8 @@
                         <rect key="frame" x="0.0" y="64" width="320" height="504"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="y84-Tn-igP">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="504"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="50" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="y84-Tn-igP">
+                                <rect key="frame" x="0.0" y="100" width="320" height="404"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </tableView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FK9-mD-DMa" customClass="AnimatableView" customModule="IBAnimatable">
@@ -79,8 +79,8 @@
                                         </constraints>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dvD-BQ-Nx8">
-                                        <rect key="frame" x="107" y="38.5" width="49" height="24"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                        <rect key="frame" x="107" y="38" width="47" height="24"/>
+                                        <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="20"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
@@ -99,7 +99,7 @@
                                         <real key="value" value="1"/>
                                     </userDefinedRuntimeAttribute>
                                     <userDefinedRuntimeAttribute type="point" keyPath="shadowOffset">
-                                        <point key="value" x="0.0" y="2"/>
+                                        <point key="value" x="0.0" y="0.0"/>
                                     </userDefinedRuntimeAttribute>
                                     <userDefinedRuntimeAttribute type="color" keyPath="shadowColor">
                                         <color key="value" red="0.0" green="0.0" blue="0.0" alpha="0.47632170379315064" colorSpace="calibratedRGB"/>
@@ -117,7 +117,7 @@
                             <constraint firstItem="y84-Tn-igP" firstAttribute="leading" secondItem="mPv-IJ-fcY" secondAttribute="leading" id="cSk-07-8uE"/>
                             <constraint firstItem="FK9-mD-DMa" firstAttribute="top" secondItem="oJx-Vl-ASV" secondAttribute="bottom" id="cvd-ET-Z0l"/>
                             <constraint firstAttribute="trailing" secondItem="y84-Tn-igP" secondAttribute="trailing" id="d34-YS-QeG"/>
-                            <constraint firstItem="y84-Tn-igP" firstAttribute="top" secondItem="oJx-Vl-ASV" secondAttribute="bottom" id="gQ8-rF-R50"/>
+                            <constraint firstItem="y84-Tn-igP" firstAttribute="top" secondItem="FK9-mD-DMa" secondAttribute="bottom" id="nFl-S5-JVE"/>
                             <constraint firstItem="h3Q-lP-fUr" firstAttribute="top" secondItem="y84-Tn-igP" secondAttribute="bottom" id="ujH-qc-dtm"/>
                         </constraints>
                     </view>
@@ -130,7 +130,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Z8j-q5-rnk" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2094" y="136"/>
+            <point key="canvasLocation" x="2092.5" y="135.21126760563379"/>
         </scene>
         <!--My Navigation Controller-->
         <scene sceneID="V5P-SS-SbW">
@@ -173,7 +173,7 @@
                                         <rect key="frame" x="0.0" y="28" width="320" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="u7W-sp-n2Z" id="e8c-gS-ql5">
-                                            <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </tableViewCellContentView>
                                     </tableViewCell>

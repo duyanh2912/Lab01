@@ -23,7 +23,7 @@ extension ImageTransitionAnimatable where Self: UIViewController {
 }
 
 class ImageTransitionAnimator: NSObject, UIViewControllerAnimatedTransitioning {
-    let duration: Double = 0.5
+    let duration: Double = 0.3
 
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return duration

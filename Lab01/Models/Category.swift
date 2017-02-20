@@ -8,10 +8,12 @@
 
 import Foundation
 import SwiftyJSON
+import RxSwift
 
 class Category {
     var name: String
     var image: UIImage
+    var json: JSON?
     
     init(name: String, image: UIImage) {
         self.name = name
@@ -31,4 +33,14 @@ class Category {
         let image = UIImage(named: "genre-\(number)")
         self.init(name: name, image: image!)
     }
+}
+
+struct CategoryController {
+    static var all: Variable<[Category?]> = {
+        var array: [Category?] = []
+        for i in 1...LinkGenerator.links.count {
+            array.append(nil)
+        }
+        return Variable(array)
+    }()
 }

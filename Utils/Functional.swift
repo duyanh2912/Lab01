@@ -27,3 +27,4 @@ infix operator >> : CompositeFunction
 public func >> <T1, T2, T3> (left: @escaping (T1)->T2, right: @escaping (T2)->T3) -> (T1)->T3 {
     return { (t1: T1) -> T3 in return right(left(t1)) }
 }
+

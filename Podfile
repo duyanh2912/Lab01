@@ -19,6 +19,7 @@ target 'Lab01' do
     pod 'ACPDownload'
     pod 'IBAnimatable'
     pod 'RxAlamofire'
+    pod 'SDWebImage'
 end
 
 post_install do |installer|

@@ -14,7 +14,11 @@ import RxSwiftExt
 
 class SongListViewController: UIViewController, ImageTransitionAnimatable {
     var category: Variable<Category?> = Variable(nil)
+    
+    var dataSource: SongDataSource!
     var disposeBag = DisposeBag()
+    
+    let cellType = SongListTableViewCell.self
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var categoryImageView: UIImageView!
@@ -27,6 +31,15 @@ class SongListViewController: UIViewController, ImageTransitionAnimatable {
         super.viewDidLoad()
         configTransition()
         bindCategory()
+        configDataSource()
+    }
+    
+    func configDataSource() {
+        cellType.registerFor(tableView: tableView)
+        dataSource = SongListDataSource(tableView: tableView)
+        dataSource.cellType = cellType
+        dataSource.category = category.value
+        dataSource.config()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -57,6 +70,7 @@ class SongListViewController: UIViewController, ImageTransitionAnimatable {
             .subscribe(onNext: { [unowned self] category in
                 self.categoryNameLabel.text = category.name
                 self.categoryImageView.image = category.image
+                self.navigationItem.title = "Top Songs In \(category.name)"
             })
             .addDisposableTo(disposeBag)
     }
