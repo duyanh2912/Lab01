@@ -10,8 +10,11 @@ import UIKit
 import Utils
 
 class MyNavigationController: UINavigationController {
+    static var instance: MyNavigationController!
 
     override func viewDidLoad() {
+        type(of: self).instance = self
+        
         navigationBar.isOpaque = true
         navigationBar.isTranslucent = false
         

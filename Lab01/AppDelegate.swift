@@ -22,8 +22,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let discover = storyboard.instantiateViewController(withIdentifier: "Discover") as! DiscoverViewController
         let left = storyboard.instantiateViewController(withIdentifier: "Left") as! LeftSlideInViewController
         let nvc = MyNavigationController(rootViewController: discover)
+        let local = storyboard.instantiateViewController(withIdentifier: "Local")
+        
+        left.viewControllers.append(discover)
+        left.viewControllers.append(local)
         
         SlideMenuOptions.contentViewScale = 1
+        SlideMenuOptions.opacityViewBackgroundColor = UIColor.black.withAlphaComponent(0.5)
+        SlideMenuOptions.shadowOffset = CGSize(width: 2, height: 0)
+        SlideMenuOptions.shadowRadius = 2
+        SlideMenuOptions.shadowOpacity = 0.3
+        SlideMenuOptions.hideStatusBar = false
+        
         let slideMenuController = SlideMenuController(mainViewController: nvc, leftMenuViewController: left)
         slideMenuController.automaticallyAdjustsScrollViewInsets = true
         self.window?.backgroundColor = UIColor(red: 236/256, green: 238/256, blue: 241/256, alpha: 1.0)
