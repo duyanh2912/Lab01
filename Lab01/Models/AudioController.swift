@@ -19,14 +19,25 @@ class AudioController {
     
     // This is for determining if playingBar is showing or not
     var isPlaying: Variable<Bool> = Variable(false)
+    
     // This is actual play/pause
     var paused: Variable<Bool> = Variable(true)
     
+    // Cool down for next/previous songs
+    var isCoolingDown = false
+    var coolDownDuration: Double = 0.2
+    
+    // Repeat and shuffle options
     var repeatOption: Variable<MusicRepeatOption> = Variable(.all)
     var shuffleOption: Variable<MusicShuffleOption> = Variable(.off)
     
+    // Song information
+    var currentDownloadLink: String? = nil
     var currentTime: Variable<Double> = Variable(0)
     var duration: Variable<Double> = Variable(0)
+    
+    // Playback info
+    var localNowPlayingInfo: [String:Any] = [:]
     
     var selectedSong: Variable<Song?> = Variable(nil)
     var songs: Variable<[Song]> = Variable([])
@@ -49,7 +60,11 @@ class AudioController {
         bindTime()
         configPlayingBar()
         configControlCenter()
-        
+        configReachability()
+        infoCenter.nowPlayingInfo = [:]
+    }
+    
+    func configReachability() {
         Status.reachable
             .asObservable()
             .subscribe(onNext: {
@@ -62,7 +77,7 @@ class AudioController {
     }
     
     func bindTime() {
-        let timer = Observable<Int>.interval(0.5, scheduler: ConcurrentDispatchQueueScheduler.init(qos: .userInteractive)).share()
+        let timer = Observable<Int>.interval(1, scheduler: ConcurrentDispatchQueueScheduler.init(qos: .userInteractive)).share()
         
         timer.map { [unowned self] _ ->  Double in
             if self.player.currentTime().seconds.isNaN {
@@ -76,6 +91,7 @@ class AudioController {
     
     func bindSongToPlay() {
         selectedSong.asObservable()
+            .subscribeOn(ConcurrentDispatchQueueScheduler.init(qos: .userInteractive))
             .unwrap()
             .observeOn(MainScheduler.instance)
             .do(onNext: { [unowned self] song in
@@ -84,31 +100,39 @@ class AudioController {
                 if self.playingBar.superview == nil {
                     self.window.addSubview(self.playingBar)
                 }
-                
+                self.progressBar.progress = 0
+            })
+            .observeOn(ConcurrentDispatchQueueScheduler.init(qos: .userInteractive))
+            .do(onNext: { [unowned self] song in
                 self.currentTime.value = 0
                 self.duration.value = 0
-                self.progressBar.progress = 0
                 
                 self.player.replaceCurrentItem(with: nil)
                 self.player.pause()
                 self.isPlaying.value = true
             })
+            .throttle(1, scheduler: ConcurrentDispatchQueueScheduler.init(qos: .userInteractive))
             .observeOn(ConcurrentDispatchQueueScheduler.init(qos: .userInteractive))
             .flatMapLatest { song in
                 Song.getBestAlikeSong(to: song)
             }
+            .observeOn(MainScheduler.instance)
             .filter {
                 if $0 == 0 {
-                    let toast = MDToast(text: "Song not found", duration: 1)
-                    toast.show()
+                    if UIApplication.shared.applicationState == .active {
+                        let toast = MDToast(text: "Song not found", duration: 1)
+                        toast.show()
+                    }
                 }
                 return $0 != 0
             }
+            .observeOn(ConcurrentDispatchQueueScheduler.init(qos: .userInteractive))
             .flatMapLatest {
                 return Song.getLink(songId: $0)
             }
-            .observeOn(MainScheduler.instance)
+            .observeOn(ConcurrentDispatchQueueScheduler.init(qos: .userInteractive))
             .subscribe(onNext: { [unowned self] link in
+                print("play")
                 self.play(link: link)
             })
             .addDisposableTo(disposeBag)
@@ -116,10 +140,17 @@ class AudioController {
     
     func seekTo(_ time: Double) {
         player.seek(to: CMTime(seconds: time, preferredTimescale: 44100))
-        infoCenter.nowPlayingInfo?[MPNowPlayingInfoPropertyElapsedPlaybackTime] = time
+        DispatchQueue.main.async { [unowned self] in
+            self.localNowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = time
+            self.infoCenter.nowPlayingInfo = self.localNowPlayingInfo
+        }
     }
     
     func configControlCenter() {
+        try? AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
+        try? AVAudioSession.sharedInstance().setActive(true)
+        UIApplication.shared.beginReceivingRemoteControlEvents()
+        
         let commandCenter = MPRemoteCommandCenter.shared()
         commandCenter.playCommand.isEnabled = true
         commandCenter.playCommand.addTarget { [unowned self] event in
@@ -146,15 +177,21 @@ class AudioController {
     }
     
     func pause() {
-        self.infoCenter.nowPlayingInfo?[MPNowPlayingInfoPropertyElapsedPlaybackTime] = self.currentTime.value
-        self.infoCenter.nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] = 0
+        DispatchQueue.main.async { [unowned self] in
+            self.localNowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = self.currentTime.value
+            self.localNowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0
+            self.infoCenter.nowPlayingInfo = self.localNowPlayingInfo
+        }
         self.paused.value = true
         self.player.pause()
     }
     
     func play() {
-        self.infoCenter.nowPlayingInfo?[MPNowPlayingInfoPropertyElapsedPlaybackTime] = self.currentTime.value
-        self.infoCenter.nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] = 1
+        DispatchQueue.main.async { [unowned self] in
+            self.localNowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = self.currentTime.value
+            self.localNowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 1
+            self.infoCenter.nowPlayingInfo = self.localNowPlayingInfo
+        }
         self.paused.value = false
         self.player.play()
     }
@@ -195,6 +232,8 @@ class AudioController {
     }
     
     func nextSong() {
+        guard !isCoolingDown else { return }
+        isCoolingDown = true
         switch shuffleOption.value {
         case .off:
             var index = self.songs.value.index(where: { $0 == self.selectedSong.value })!
@@ -207,9 +246,14 @@ class AudioController {
         case .on:
             self.selectedSong.value = self.songs.value.randomMember
         }
+        Timer.scheduledTimer(withTimeInterval: coolDownDuration, repeats: false) { [weak self] _ in
+            self?.isCoolingDown = false
+        }
     }
     
     func previousSong() {
+        guard !isCoolingDown else { return }
+        isCoolingDown = true
         var index = self.songs.value.index(where: { $0 == self.selectedSong.value })!
         if index <= 0 {
             index = self.songs.value.count - 1
@@ -217,6 +261,9 @@ class AudioController {
             index -= 1
         }
         self.selectedSong.value = self.songs.value[index]
+        Timer.scheduledTimer(withTimeInterval: coolDownDuration, repeats: false) { [weak self] _ in
+            self?.isCoolingDown = false
+        }
     }
     
     private func play(link: String) {
@@ -225,7 +272,10 @@ class AudioController {
         player.replaceCurrentItem(with: playerItem)
         play()
         if let duration = player.currentItem?.asset.duration {
-            infoCenter.nowPlayingInfo?[MPMediaItemPropertyPlaybackDuration] = duration.seconds
+            DispatchQueue.main.async { [unowned self] in
+                self.localNowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration.seconds
+                self.infoCenter.nowPlayingInfo = self.localNowPlayingInfo
+            }
             self.duration.value = duration.seconds
         }
         
@@ -236,9 +286,6 @@ class AudioController {
                 self.didFinishPlaying()
             })
             .addDisposableTo(disposeBag)
-        try? AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
-        try? AVAudioSession.sharedInstance().setActive(true)
-        UIApplication.shared.beginReceivingRemoteControlEvents()
     }
     
     private func didFinishPlaying() {
@@ -252,16 +299,15 @@ class AudioController {
     }
     
     private func configControllCenter(song: Song) {
-        let infoCenter = MPNowPlayingInfoCenter.default()
-        var newInfo = Dictionary<String, Any>()
-        
-        newInfo[MPMediaItemPropertyTitle] = song.title
-        newInfo[MPMediaItemPropertyArtist] = song.artist
-        
-        newInfo[MPNowPlayingInfoPropertyPlaybackRate] = 1
-        newInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: CGSize(width: 170, height: 170)) { _ in
-            return song.image ?? UIImage()
+        DispatchQueue.main.async { [unowned self] in
+            self.localNowPlayingInfo[MPMediaItemPropertyTitle] = song.title
+            self.localNowPlayingInfo[MPMediaItemPropertyArtist] = song.artist
+            self.localNowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0
+            self.localNowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = 0
+            self.localNowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: CGSize(width: 170, height: 170)) { _ in
+                return song.image ?? UIImage()
+            }
+            self.infoCenter.nowPlayingInfo = self.localNowPlayingInfo
         }
-        infoCenter.nowPlayingInfo = newInfo
     }
 }

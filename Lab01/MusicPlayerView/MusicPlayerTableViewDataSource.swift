@@ -53,11 +53,14 @@ class MusicPlayerTableViewDataSource: ReactiveTableViewDataSource {
         
         self.selectedSong
             .asObservable()
+            .observeOn(ConcurrentDispatchQueueScheduler.init(qos: .userInteractive))
             .map { [unowned self] song in
                 return self.songs.value.index(where: {$0==song})
             }
             .unwrap()
-            .map { IndexPath(row: $0, section: 0) }
+            .map {
+                IndexPath(row: $0, section: 0)
+            }
             .observeOn(MainScheduler.instance)
             .subscribe(onNext: { [unowned self] in
                 if let indexPath = self.selectedIndexPath {

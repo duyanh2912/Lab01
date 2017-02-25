@@ -209,6 +209,12 @@ class MusicPlayerViewController: UIViewController {
     
     func configOptionButton() {
         optionButton.tintColor = .white
+        optionButton.rx
+            .tap
+            .subscribe(onNext: { [unowned self] _ in
+                print("tapped")
+            })
+            .addDisposableTo(disposeBag)
     }
     
     func configHideButton() {

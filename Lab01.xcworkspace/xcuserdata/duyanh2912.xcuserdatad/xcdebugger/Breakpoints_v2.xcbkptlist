@@ -10,12 +10,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Lab01/MusicPlayerView/MusicPlayerViewController.swift"
-            timestampString = "509713010.781039"
+            timestampString = "509734702.087005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "119"
-            endingLineNumber = "119"
-            landmarkName = "configProgressSlider()"
+            startingLineNumber = "215"
+            endingLineNumber = "215"
+            landmarkName = "configOptionButton()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

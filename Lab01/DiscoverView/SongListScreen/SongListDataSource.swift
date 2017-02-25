@@ -57,13 +57,15 @@ class SongListDataSource: SongDataSource {
         
         AudioController.instance.selectedSong
             .asObservable()
+            .observeOn(ConcurrentDispatchQueueScheduler.init(qos: .userInteractive))
             .unwrap()
-            .distinctUntilChanged { $0 == $1 }
             .map { [unowned self] song -> Array<Any>.Index? in
                 return self.songs.value.index(where: { $0 == song })
             }
             .unwrap()
-            .map { IndexPath(row: $0, section: 0) }
+            .map {
+                IndexPath(row: $0, section: 0)
+            }
             .observeOn(MainScheduler.instance)
             .subscribe(onNext: { [unowned self] index in
                 if let selectedIndex = self.tableView.indexPathForSelectedRow {
