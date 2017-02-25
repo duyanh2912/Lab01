@@ -20,6 +20,7 @@ target 'Lab01' do
     pod 'IBAnimatable'
     pod 'RxAlamofire'
     pod 'SDWebImage'
+    pod 'MaterialControls'
 end
 
 post_install do |installer|

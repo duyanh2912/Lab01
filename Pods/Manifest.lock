@@ -4,6 +4,7 @@ PODS:
   - AlamofireImage (3.2.0):
     - Alamofire (~> 4.1)
   - IBAnimatable (3.1.2)
+  - MaterialControls (1.2.2)
   - ReachabilitySwift (3)
   - Realm (2.4.2):
     - Realm/Headers (= 2.4.2)
@@ -34,6 +35,7 @@ DEPENDENCIES:
   - Alamofire
   - AlamofireImage
   - IBAnimatable
+  - MaterialControls
   - ReachabilitySwift
   - RealmSwift
   - RxAlamofire
@@ -50,6 +52,7 @@ SPEC CHECKSUMS:
   Alamofire: 856a113053a7bc9cbe5d6367a555d773fc5cfef7
   AlamofireImage: 157ed682cc81d3b9db4fb90c1f12180ac552d93b
   IBAnimatable: 26b74a72df9369d40faab97428477c246b9e42ba
+  MaterialControls: 1c6b29e78d3a13d8dd6a67ed31b6d26eb5de8f72
   ReachabilitySwift: f5b9bb30a0777fac8f09ce8b067e32faeb29bb64
   Realm: d27b758e12d62a3371879a065d4c40aa212c5a54
   RealmSwift: 9556c0fe0f0cfecacfb755ae9e68ff379fc6bead
@@ -62,6 +65,6 @@ SPEC CHECKSUMS:
   SlideMenuControllerSwift: 9a163b16d54afab734add42858cba7ef7c307755
   SwiftyJSON: c2842d878f95482ffceec5709abc3d05680c0220
 
-PODFILE CHECKSUM: cf34944da88b2e08376a465a160133596a7ac5d5
+PODFILE CHECKSUM: 9a3e39aa2c2330b8b6edb69ce53a9e4fecd98e33
 
 COCOAPODS: 1.2.0

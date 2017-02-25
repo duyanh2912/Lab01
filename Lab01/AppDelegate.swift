@@ -13,10 +13,12 @@ import SlideMenuControllerSwift
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
+    static var instance: AppDelegate!
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        AppDelegate.instance = self
+        Status.startReachability()
         
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let discover = storyboard.instantiateViewController(withIdentifier: "Discover") as! DiscoverViewController

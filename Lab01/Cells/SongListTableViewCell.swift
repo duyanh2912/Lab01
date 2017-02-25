@@ -20,11 +20,13 @@ class SongListTableViewCell: SongConfigurableTableViewCell {
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var artistLabel: UILabel!
     @IBOutlet weak var addButton: UIButton!
-        
+    @IBOutlet weak var selectedIndicator: UIView!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         addButton.backgroundColor = .clear
         addButton.tintColor = .black
+        selectedIndicator.isHidden = true
     }
     
     override func configWith(song: Song) {
@@ -39,6 +41,17 @@ class SongListTableViewCell: SongConfigurableTableViewCell {
                          options: [.refreshCached])
             { [weak self] params in
                 self?.songImageView.image = params.0
+                song.image = params.0
+        }
+    }
+    
+    override var isSelected: Bool {
+        didSet {
+            if isSelected {
+                selectedIndicator.isHidden = false
+            } else {
+                selectedIndicator.isHidden = true
             }
+        }
     }
 }

@@ -10,10 +10,12 @@ import UIKit
 
 extension DiscoverViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        guard preCalculatedCellSize == nil else { return preCalculatedCellSize! }
         let width = (collectionView.width - 30) / 2
         let cell = CategoryCell.fromNib
         cell.contentWidth = width
-        return cell.systemLayoutSizeFitting(UILayoutFittingCompressedSize)
+        preCalculatedCellSize = cell.systemLayoutSizeFitting(UILayoutFittingCompressedSize)
+        return preCalculatedCellSize!
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {

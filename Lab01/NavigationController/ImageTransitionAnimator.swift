@@ -23,7 +23,7 @@ extension ImageTransitionAnimatable where Self: UIViewController {
 }
 
 class ImageTransitionAnimator: NSObject, UIViewControllerAnimatedTransitioning {
-    let duration: Double = 0.3
+    let duration: Double = 0.5
 
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return duration
@@ -38,7 +38,7 @@ class ImageTransitionAnimator: NSObject, UIViewControllerAnimatedTransitioning {
         let fromViewController = transitionContext.viewController(forKey: .from) as! ImageTransitionAnimatable
         
         let blackOverlay = UIView(frame: fromView.frame)
-        blackOverlay.backgroundColor = .black
+        blackOverlay.backgroundColor = .white
         blackOverlay.alpha = 0
         container.addSubview(blackOverlay)
         
@@ -54,14 +54,14 @@ class ImageTransitionAnimator: NSObject, UIViewControllerAnimatedTransitioning {
         toViewController.imageViewForTransition.alpha = 0
         fromViewController.imageViewForTransition.alpha = 0
         
-        UIView.animate(withDuration: duration/2, animations: {
+        UIView.animate(withDuration: duration/2, delay:0, options: .curveEaseIn, animations: {
             blackOverlay.alpha = 1
         })
         { [unowned self] _ in
             container.addSubview(toView)
             container.bringSubview(toFront: blackOverlay)
             container.bringSubview(toFront: snapShotView)
-            UIView.animate(withDuration: self.duration/2, animations: {
+            UIView.animate(withDuration: self.duration/2, delay:0, options: .curveEaseOut, animations: {
                 blackOverlay.alpha = 0
             })
         }

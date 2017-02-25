@@ -12,22 +12,53 @@ import RxSwift
 import Alamofire
 import SwiftyJSON
 import SlideMenuControllerSwift
+import ReachabilitySwift
+import MaterialControls
 
 class DiscoverViewController: UIViewController, ImageTransitionAnimatable {
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var leftBarButton: UIBarButtonItem!
+    @IBOutlet weak var bottomConstraint: NSLayoutConstraint!
     
     var dataSource: ReactiveCollectionViewDataSource!
     var imageViewForTransition: UIImageView!
+    var preCalculatedCellSize: CGSize?
+    
+    var snackBar = Status.snackBar
     
     static var instance: DiscoverViewController!
     let disposeBag = DisposeBag()
+    let animator = ImageTransitionAnimator()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configNavigation()
         configDataSource()
         configSelectingModel()
+        
+        Status.reachable
+            .asObservable()
+            .subscribe(onNext: { [unowned self] in
+                if $0 {
+                    self.snackBar.dismiss()
+                    self.bottomConstraint.constant = 0
+                    CategoryController.getCategories()
+                } else {
+                    self.snackBar.show()
+                    self.bottomConstraint.constant = self.snackBar.height
+                }
+            })
+            .addDisposableTo(disposeBag)
+        
+        AudioController.instance
+            .isPlaying
+            .asObservable()
+            .subscribe(onNext: {
+                if $0 {
+                    self.collectionView.contentInset.bottom = 50
+                }
+            })
+            .addDisposableTo(disposeBag)
     }
     
     func configNavigation() {
@@ -71,7 +102,7 @@ class DiscoverViewController: UIViewController, ImageTransitionAnimatable {
 extension DiscoverViewController: UINavigationControllerDelegate {
     func navigationController(_ navigationController: UINavigationController, animationControllerFor operation: UINavigationControllerOperation, from fromVC: UIViewController, to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         if (toVC is SongListViewController && fromVC is DiscoverViewController) || (fromVC is SongListViewController && toVC is DiscoverViewController) {
-            return ImageTransitionAnimator()
+            return animator
         }
         return nil
     }

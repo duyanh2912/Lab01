@@ -12,9 +12,10 @@ import RxCocoa
 import RxAlamofire
 import Alamofire
 import SwiftyJSON
+import RxSwiftExt
 
 class LinkGenerator {
-    static var prefix = "https://itunes.apple.com/us/rss/topsongs/limit=50/genre="
+    static var prefix = "https://itunes.apple.com/vn/rss/topsongs/limit=50/genre="
     static var suffix = "/explicit=true/json"
     static var disposeBag = DisposeBag()
     

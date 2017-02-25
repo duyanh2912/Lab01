@@ -13,14 +13,39 @@ import RxSwift
 class DiscoverDataSource: ReactiveCollectionViewDataSource {
     weak var collectionView: UICollectionView!
     
+    var categories: Variable<[Category?]> = Variable([])
+    
+    var binding: Variable<Bool> = Variable(false)
+    var bind: Disposable?
+    
     var disposeBag = DisposeBag()
     
     init(collectionView: UICollectionView) {
         self.collectionView = collectionView
     }
     
+    func configUnBind() {
+        binding.asObservable()
+            .observeOn(MainScheduler.instance)
+            .subscribe(onNext: { [unowned self] in
+                if $0 {
+                    guard self.bind == nil else { return }
+                    self.bind = CategoryController.all
+                        .asObservable()
+                        .bindTo(self.categories)
+                    self.bind?.addDisposableTo(self.disposeBag)
+                } else {
+                    self.bind?.dispose()
+                    self.bind = nil
+                    self.categories.value = []
+                }
+            })
+            .addDisposableTo(disposeBag)
+    }
+    
     func bindDataSource() {
-        CategoryController.all.asObservable()
+        categories.asObservable()
+            .observeOn(MainScheduler.instance)
             .bindTo(collectionView
                 .rx
                 .items(cellIdentifier: CategoryCell.identifier, cellType: CategoryCell.self)
@@ -32,13 +57,9 @@ class DiscoverDataSource: ReactiveCollectionViewDataSource {
     }
     
     func getData() {
-        for (index, link) in LinkGenerator.links.enumerated() {
-            LinkGenerator.json(from: link)
-                .subscribe(onNext: { json in
-                    CategoryController.all.value[index] = Category(json: json)
-                    CategoryController.all.value[index]?.json = json
-                })
-                .addDisposableTo(disposeBag)
-        }
+        CategoryController.all
+        .asObservable()
+        .bindTo(self.categories)
+        .addDisposableTo(disposeBag)
     }
 }
