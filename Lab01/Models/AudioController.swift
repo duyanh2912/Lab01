@@ -233,16 +233,22 @@ class AudioController {
             .rx
             .notification(NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: playerItem)
             .subscribe(onNext: { [unowned self] _ in
-                switch self.repeatOption.value {
-                case .all: self.nextSong()
-                case .none: break
-                case .one: self.player.seek(to: CMTime(seconds: 0, preferredTimescale: 44100)) { [unowned self] _ in
-                    self.play()
-                    }
-                }
+                self.didFinishPlaying()
             })
             .addDisposableTo(disposeBag)
-        print(playerItem.canPlayFastForward)
+        try? AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
+        try? AVAudioSession.sharedInstance().setActive(true)
+        UIApplication.shared.beginReceivingRemoteControlEvents()
+    }
+    
+    private func didFinishPlaying() {
+        switch self.repeatOption.value {
+        case .all: self.nextSong()
+        case .none: self.pause()
+        case .one: self.player.seek(to: CMTime(seconds: 0, preferredTimescale: 44100)) { [unowned self] _ in
+            self.play()
+            }
+        }
     }
     
     private func configControllCenter(song: Song) {

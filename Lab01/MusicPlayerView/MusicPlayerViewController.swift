@@ -102,19 +102,29 @@ class MusicPlayerViewController: UIViewController {
             .bindTo(progressSlider.rx.value)
             .addDisposableTo(disposeBag)
         
-        progressSlider.rx
-            .controlEvent(.touchDown)
-            .subscribe(onNext: { [unowned self] _ in self.sliding = true })
-            .addDisposableTo(disposeBag)
-        
-        progressSlider.rx
+        let slideObservable = progressSlider.rx
             .value
             .subscribeOn(ConcurrentDispatchQueueScheduler.init(qos: .userInteractive))
+            .share()
             .filter { [unowned self] _ in self.sliding }
             .map { value in Double(value/100) * AudioController.instance.duration.value }
+        slideObservable
             .map { [unowned self] in self.convert(time: $0) }
             .observeOn(MainScheduler.instance)
             .bindTo(currentTimeLabel.rx.text)
+            .addDisposableTo(disposeBag)
+        slideObservable
+            .map { AudioController.instance.duration.value - $0 }
+            .map { [unowned self] time -> String in
+                return "-\(self.convert(time: time))"
+            }
+            .observeOn(MainScheduler.instance)
+            .bindTo(remainingTimeLabel.rx.text)
+            .addDisposableTo(disposeBag)
+        
+        progressSlider.rx
+            .controlEvent(.touchDown)
+            .subscribe(onNext: { [unowned self] _ in self.sliding = true })
             .addDisposableTo(disposeBag)
         
         Observable.of(progressSlider.rx.controlEvent(.touchUpInside),
