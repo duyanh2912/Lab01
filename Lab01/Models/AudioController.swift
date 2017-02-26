@@ -176,6 +176,14 @@ class AudioController {
         }
     }
     
+    func seekNext(time: Double) {
+        seekTo(self.currentTime.value + time)
+    }
+    
+    func seekBack(time: Double) {
+        seekTo(self.currentTime.value - time)
+    }
+    
     func pause() {
         DispatchQueue.main.async { [unowned self] in
             self.localNowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = self.currentTime.value

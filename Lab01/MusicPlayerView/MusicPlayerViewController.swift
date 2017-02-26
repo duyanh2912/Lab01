@@ -183,6 +183,22 @@ class MusicPlayerViewController: UIViewController {
                 AudioController.instance.previousSong()
             })
             .addDisposableTo(disposeBag)
+        
+        nextButton.rx.gesture(RxGestureTypeOption.longPress)
+            .throttle(0.5, scheduler: ConcurrentDispatchQueueScheduler.init(qos: .userInteractive))
+            .subscribe(onNext: { _ in
+                print("Seek next")
+                AudioController.instance.seekNext(time: 3)
+            })
+            .addDisposableTo(disposeBag)
+        
+        previousButton.rx.gesture(RxGestureTypeOption.longPress)
+            .throttle(0.5, scheduler: ConcurrentDispatchQueueScheduler.init(qos: .userInteractive))
+            .subscribe(onNext: { _ in
+                print("Seek back")
+                AudioController.instance.seekBack(time: 4)
+            })
+            .addDisposableTo(disposeBag)
     }
     
     func configPlayPauseButton() {
